@@ -47,6 +47,9 @@ INSTALLED_APPS = [
     # Framework pour les API REST
     "rest_framework",
 
+    # Documentation OpenAPI / Swagger
+    "drf_spectacular",
+
     # Application métier du Grand Cinéma
     "cinema",
 ]
@@ -137,3 +140,22 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "cinema.Utilisateur"
+
+# Configuration Django REST Framework
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": (
+        "drf_spectacular.openapi.AutoSchema"
+    ),
+}
+
+# Configuration Swagger / OpenAPI
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Le Grand Cinéma API",
+    "DESCRIPTION": (
+        "API REST de gestion des films, des séances "
+        "et des réservations de places de cinéma."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+}
