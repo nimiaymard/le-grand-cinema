@@ -5,7 +5,28 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from django.shortcuts import get_object_or_404
+
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+
+from drf_spectacular.utils import extend_schema
+
 from .models import Film, Reservation, Seance
+
+from .serializers import (
+    FilmSerializer,
+    SeanceSerializer,
+    PlaceDisponibleSerializer,
+    ReservationRequestSerializer,
+    ReservationResponseSerializer,
+    MesReservationsSerializer,
+    AnnulationResponseSerializer,
+    ErreurSerializer,
+)
+
 from .services import (
     ErreurReservation,
     obtenir_places_disponibles,
@@ -13,7 +34,13 @@ from .services import (
     annuler_reservation,
 )
 
-
+@extend_schema(
+    methods=["GET"],
+    summary="Lister les films",
+    description="Retourne la liste des films du cinéma.",
+    responses={200: FilmSerializer(many=True)},
+    tags=["Films"],
+)
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def liste_films(request):
@@ -31,9 +58,18 @@ def liste_films(request):
     ])
 
 
+
+@extend_schema(
+    methods=["GET"],
+    summary="Lister les séances",
+    description="Retourne les séances programmées du cinéma.",
+    responses={200: SeanceSerializer(many=True)},
+    tags=["Séances"],
+)
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def liste_seances(request):
+
     seances = Seance.objects.select_related(
         "film", "salle"
     ).filter(
@@ -53,6 +89,17 @@ def liste_seances(request):
     ])
 
 
+
+@extend_schema(
+    methods=["GET"],
+    summary="Consulter les places disponibles",
+    description="Retourne les places disponibles pour une séance.",
+    responses={
+        200: PlaceDisponibleSerializer(many=True),
+        404: None,
+    },
+    tags=["Séances"],
+)
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def places_disponibles(request, seance_id):
@@ -70,6 +117,20 @@ def places_disponibles(request, seance_id):
     ])
 
 
+
+@extend_schema(
+    methods=["POST"],
+    summary="Réserver des places",
+    description="Crée une réservation pour un utilisateur authentifié.",
+    request=ReservationRequestSerializer,
+    responses={
+        201: ReservationResponseSerializer,
+        400: ErreurSerializer,
+        401: None,
+        403: None,
+    },
+    tags=["Réservations"],
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def reserver(request):
@@ -106,6 +167,18 @@ def reserver(request):
         )
 
 
+
+@extend_schema(
+    methods=["GET"],
+    summary="Consulter mes réservations",
+    description="Retourne les réservations de l'utilisateur connecté.",
+    responses={
+        200: MesReservationsSerializer(many=True),
+        401: None,
+        403: None,
+    },
+    tags=["Réservations"],
+)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def mes_reservations(request):
@@ -136,6 +209,20 @@ def mes_reservations(request):
     ])
 
 
+
+@extend_schema(
+    methods=["POST"],
+    summary="Annuler une réservation",
+    description="Annule une réservation et libère les places associées.",
+    request=None,
+    responses={
+        200: AnnulationResponseSerializer,
+        400: ErreurSerializer,
+        401: None,
+        403: None,
+    },
+    tags=["Réservations"],
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def annuler(request, reservation_id):
