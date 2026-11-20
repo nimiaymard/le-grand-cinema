@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Les films — Le Grand Cinéma{% endblock %}
+{% block content %}
+<p class="eyebrow">À l'affiche</p><h1>Découvrez les films.</h1>
+<p class="muted">Choisissez une histoire. Nous nous occupons de la suite.</p>
+<div class="grid">
+{% for film in films %}
+<article class="card">
+<div class="poster">{% if film.affiche_url %}<img src="{{ film.affiche_url }}" alt="Affiche de {{ film.titre }}" loading="lazy">{% else %}{{ film.titre|slice:":1" }}{% endif %}</div>
+<div class="card-body"><p class="eyebrow">{{ film.genre|default:"Cinéma" }} · {{ film.duree_minutes }} min</p>
+<h2>{{ film.titre }}</h2><p class="muted">{{ film.description|default:"Découvrez ce film."|truncatewords:22 }}</p>
+<a class="btn" href="{% url 'detail_film' film.id %}">Voir le film</a></div>
+</article>
+{% empty %}<p class="muted">Aucun film disponible pour le moment.</p>{% endfor %}
+</div>
+{% endblock %}

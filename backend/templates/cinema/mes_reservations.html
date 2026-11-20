@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Mes réservations — Le Grand Cinéma{% endblock %}
+{% block content %}
+<p class="eyebrow">Espace personnel</p><h1>Mes réservations.</h1>
+{% for reservation in reservations %}
+<div class="seance"><div><h2>{{ reservation.seance.film.titre }}</h2>
+<p class="muted">{{ reservation.seance.date_debut|date:"d/m/Y à H:i" }} · {{ reservation.seance.salle.nom }}</p>
+<p>Réservation n°{{ reservation.id }} · {{ reservation.get_statut_display }} · {{ reservation.montant_total }} €</p>
+<p class="muted">Places :
+{% for rp in reservation.places_reservees.all %}{% if not rp.date_liberation %}{{ rp.place.rangee }}{{ rp.place.numero }} {% endif %}{% endfor %}
+</p></div>
+{% if reservation.statut == "confirmee" and reservation.seance.date_debut > maintenant %}
+<form method="post" action="{% url 'annuler_reservation_web' reservation.id %}">
+{% csrf_token %}<button class="btn btn-outline" type="submit">Annuler</button></form>
+{% endif %}
+</div>
+{% empty %}<p class="muted">Vous n'avez pas encore effectué de réservation.</p>{% endfor %}
+{% endblock %}

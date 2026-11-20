@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Inscription — Le Grand Cinéma{% endblock %}
+{% block content %}
+<form method="post" class="auth">{% csrf_token %}
+<p class="eyebrow">Rejoignez-nous</p><h1>Créer un compte.</h1>
+{{ form.as_p }}
+<button class="btn" type="submit">Créer mon compte</button>
+<p class="muted">Déjà inscrit ? <a href="/connexion/">Se connecter</a></p>
+</form>
+{% endblock %}
