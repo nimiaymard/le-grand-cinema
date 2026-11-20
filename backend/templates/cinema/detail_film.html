@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ film.titre }} — Le Grand Cinéma{% endblock %}
+{% block content %}
+<p class="eyebrow">{{ film.genre|default:"Cinéma" }} · {{ film.duree_minutes }} minutes</p>
+<h1>{{ film.titre }}</h1><p class="muted">{{ film.description }}</p>
+<h2>Prochaines séances</h2>
+{% for seance in seances %}
+<div class="seance">
+<div><strong>{{ seance.date_debut|date:"d/m/Y à H:i" }}</strong>
+<p class="muted">{{ seance.salle.nom }} · {{ seance.prix }} €</p></div>
+<a class="btn" href="{% url 'reservation_web' seance.id %}">Choisir mes places</a>
+</div>
+{% empty %}<p class="muted">Aucune séance à venir pour ce film.</p>{% endfor %}
+<a href="/films/">← Retour aux films</a>
+{% endblock %}
