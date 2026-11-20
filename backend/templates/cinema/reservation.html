@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Réservation — Le Grand Cinéma{% endblock %}
+{% block title %}Réservation - Le Grand Cinéma{% endblock %}
 {% block content %}
 <p class="eyebrow">Votre séance</p><h1>{{ seance.film.titre }}</h1>
 <p class="muted">{{ seance.date_debut|date:"d/m/Y à H:i" }} · {{ seance.salle.nom }} · {{ seance.prix }} € / place</p>

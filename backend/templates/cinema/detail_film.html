@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ film.titre }} — Le Grand Cinéma{% endblock %}
+{% block title %}{{ film.titre }} - Le Grand Cinéma{% endblock %}
 {% block content %}
 <p class="eyebrow">{{ film.genre|default:"Cinéma" }} · {{ film.duree_minutes }} minutes</p>
 <h1>{{ film.titre }}</h1><p class="muted">{{ film.description }}</p>
