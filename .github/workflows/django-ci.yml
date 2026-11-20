@@ -10,7 +10,7 @@ on:
 
 jobs:
   django-tests:
-    name: Django Tests, Ruff and OpenAPI
+    name: Django Tests and OpenAPI
     runs-on: ubuntu-latest
 
     services:
