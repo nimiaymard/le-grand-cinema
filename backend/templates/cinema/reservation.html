@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Réservation - Le Grand Cinéma{% endblock %}
+{% block content %}
+<p class="eyebrow">Votre séance</p><h1>{{ seance.film.titre }}</h1>
+<p class="muted">{{ seance.date_debut|date:"d/m/Y à H:i" }} · {{ seance.salle.nom }} · {{ seance.prix }} € / place</p>
+<h2>Choisissez vos places</h2>
+<p class="muted">Sélectionnez une ou plusieurs places disponibles.</p>
+<form method="post">{% csrf_token %}
+<div class="seats">
+{% for place in places %}
+<label class="seat"><input type="checkbox" name="place_ids" value="{{ place.id }}" class="seat-input">
+<span>{{ place.rangee }}{{ place.numero }}</span></label>
+{% empty %}<p class="muted">Aucune place disponible.</p>{% endfor %}
+</div>
+<p id="total" class="muted">Total : 0,00 €</p>
+<button class="btn" type="submit" {% if not places %}disabled{% endif %}>Confirmer la réservation</button>
+</form>
+<script>
+const prix = Number("{{ seance.prix }}".replace(",","."));
+document.querySelectorAll(".seat-input").forEach(el=>el.addEventListener("change",()=>{
+const n=document.querySelectorAll(".seat-input:checked").length;
+document.getElementById("total").textContent="Total : "+(n*prix).toLocaleString("fr-FR",{style:"currency",currency:"EUR"});
+}));
+</script>
+{% endblock %}
