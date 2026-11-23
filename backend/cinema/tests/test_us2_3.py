@@ -143,14 +143,13 @@ class AnnulationUS23Tests(TestCase):
 
         with patch(
             "cinema.web_views.envoyer_confirmation_annulation"
-        ) as envoyer:
-            with self.captureOnCommitCallbacks(execute=True):
-                response = self.client.post(
-                    reverse(
-                        "annuler_reservation_web",
-                        args=[self.reservation.id],
-                    )
+        ) as envoyer, self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(
+                reverse(
+                    "annuler_reservation_web",
+                    args=[self.reservation.id],
                 )
+            )
 
         self.assertEqual(
             response.status_code,
@@ -164,14 +163,13 @@ class AnnulationUS23Tests(TestCase):
 
         with patch(
             "cinema.web_views.envoyer_confirmation_annulation"
-        ) as envoyer:
-            with self.captureOnCommitCallbacks(execute=True):
-                self.client.post(
-                    reverse(
-                        "annuler_reservation_web",
-                        args=[self.reservation.id],
-                    )
+        ) as envoyer, self.captureOnCommitCallbacks(execute=True):
+            self.client.post(
+                reverse(
+                    "annuler_reservation_web",
+                    args=[self.reservation.id],
                 )
+            )
 
         envoyer.assert_not_called()
 

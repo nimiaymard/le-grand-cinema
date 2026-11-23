@@ -7,7 +7,6 @@ from django.utils import timezone
 
 from .models import ReservationPlace
 
-
 logger = logging.getLogger(__name__)
 
 

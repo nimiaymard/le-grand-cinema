@@ -1,33 +1,29 @@
 
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-
-
-from drf_spectacular.utils import extend_schema
-
 from .models import Film, Reservation, Seance
-
 from .serializers import (
+    AnnulationResponseSerializer,
+    ErreurSerializer,
     FilmSerializer,
-    SeanceSerializer,
+    MesReservationsSerializer,
     PlaceDisponibleSerializer,
     ReservationRequestSerializer,
     ReservationResponseSerializer,
-    MesReservationsSerializer,
-    AnnulationResponseSerializer,
-    ErreurSerializer,
+    SeanceSerializer,
 )
-
 from .services import (
     ErreurReservation,
-    obtenir_places_disponibles,
-    creer_reservation,
     annuler_reservation,
+    creer_reservation,
+    obtenir_places_disponibles,
 )
+
 
 @extend_schema(
     methods=["GET"],

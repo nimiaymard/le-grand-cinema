@@ -65,13 +65,12 @@ class TestsSeances(TransactionTestCase):
             self.debut + timedelta(hours=2),
         )
 
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                self.creer_seance(
-                    self.salle_1,
-                    self.debut + timedelta(minutes=30),
-                    self.debut + timedelta(hours=2, minutes=30),
-                )
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            self.creer_seance(
+                self.salle_1,
+                self.debut + timedelta(minutes=30),
+                self.debut + timedelta(hours=2, minutes=30),
+            )
 
     def test_meme_horaire_autre_salle_autorise(self):
         self.creer_seance(

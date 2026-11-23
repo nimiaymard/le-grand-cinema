@@ -105,14 +105,13 @@ class TestsContraintesReservation(TransactionTestCase):
             self.place_1,
         )
 
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                self.attribuer(
-                    self.reservation_2,
-                    self.seance,
-                    self.salle_1,
-                    self.place_1,
-                )
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            self.attribuer(
+                self.reservation_2,
+                self.seance,
+                self.salle_1,
+                self.place_1,
+            )
 
     def test_place_liberee_puis_reattribuee(self):
         attribution = self.attribuer(
@@ -135,14 +134,13 @@ class TestsContraintesReservation(TransactionTestCase):
         self.assertIsNotNone(nouvelle.pk)
 
     def test_place_autre_salle_refusee(self):
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                self.attribuer(
-                    self.reservation_1,
-                    self.seance,
-                    self.salle_1,
-                    self.place_autre_salle,
-                )
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            self.attribuer(
+                self.reservation_1,
+                self.seance,
+                self.salle_1,
+                self.place_autre_salle,
+            )
 
     def test_seance_incoherente_refusee(self):
         debut = self.seance.date_debut
@@ -155,21 +153,19 @@ class TestsContraintesReservation(TransactionTestCase):
             prix=Decimal("10.00"),
         )
 
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                self.attribuer(
-                    self.reservation_1,
-                    autre_seance,
-                    self.salle_2,
-                    self.place_autre_salle,
-                )
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            self.attribuer(
+                self.reservation_1,
+                autre_seance,
+                self.salle_2,
+                self.place_autre_salle,
+            )
 
     def test_salle_incoherente_refusee(self):
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                self.attribuer(
-                    self.reservation_1,
-                    self.seance,
-                    self.salle_2,
-                    self.place_autre_salle,
-                )
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            self.attribuer(
+                self.reservation_1,
+                self.seance,
+                self.salle_2,
+                self.place_autre_salle,
+            )

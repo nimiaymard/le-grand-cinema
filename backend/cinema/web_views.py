@@ -1,4 +1,3 @@
-
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -6,19 +5,17 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .models import Film, Place, Reservation, ReservationPlace, Seance
 
+from .models import Billet, Film, Place, Reservation, ReservationPlace, Seance
+from .notifications import (
+    envoyer_confirmation_annulation,
+    envoyer_confirmation_reservation,
+)
 from .services import (
     ErreurReservation,
     annuler_reservation,
     creer_reservation,
 )
-
-from .notifications import (
-    envoyer_confirmation_annulation,
-    envoyer_confirmation_reservation,
-)
-
 from .web_forms import InscriptionForm
 
 
@@ -224,3 +221,57 @@ def annuler_reservation_web(request, reservation_id):
 
     return redirect("mes_reservations_web")
 
+
+@login_required
+def billet_web(request, reservation_id):
+    reservation = get_object_or_404(
+        Reservation.objects.select_related(
+            "utilisateur",
+            "seance__film",
+            "seance__salle",
+        ),
+        pk=reservation_id,
+    )
+
+    # Seul le propriétaire ou le personnel autorisé
+    # peut consulter le billet.
+    est_proprietaire = (
+        reservation.utilisateur_id == request.user.id
+    )
+
+    est_personnel = (
+        request.user.is_staff
+        or request.user.is_superuser
+    )
+
+    if not (est_proprietaire or est_personnel):
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied
+
+    # Aucun billet valide pour une réservation annulée.
+    if reservation.statut != Reservation.Statut.CONFIRMEE:
+        from django.http import Http404
+        raise Http404("Aucun billet valide pour cette réservation.")
+
+    billet, _ = Billet.objects.get_or_create(
+        reservation=reservation,
+    )
+
+    places = (
+        ReservationPlace.objects.filter(
+            reservation=reservation,
+            date_liberation__isnull=True,
+        )
+        .select_related("place")
+        .order_by("place__rangee", "place__numero")
+    )
+
+    return render(
+        request,
+        "cinema/billet.html",
+        {
+            "billet": billet,
+            "reservation": reservation,
+            "places": places,
+        },
+    )

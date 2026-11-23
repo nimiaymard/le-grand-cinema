@@ -1,9 +1,12 @@
-from .managers import UtilisateurManager
+import uuid
+
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.constraints import ExclusionConstraint
 from django.contrib.postgres.fields import DateTimeRangeField, RangeOperators
 from django.db import models
 from django.db.models import Func
+
+from .managers import UtilisateurManager
 
 
 class TstzRange(Func):
@@ -319,3 +322,27 @@ class ReservationPlace(models.Model):
 
     def __str__(self):
         return f"Réservation {self.reservation_id} - Place {self.place_id}"
+
+class Billet(models.Model):
+    reservation = models.OneToOneField(
+        Reservation,
+        on_delete=models.PROTECT,
+        related_name="billet",
+    )
+
+    reference = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    date_creation = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    @property
+    def est_valide(self):
+        return self.reservation.statut == Reservation.Statut.CONFIRMEE
+
+    def __str__(self):
+        return f"Billet {self.reference}"

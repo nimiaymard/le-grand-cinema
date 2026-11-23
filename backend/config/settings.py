@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
@@ -22,15 +24,11 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
-DEBUG = os.environ.get(
-    "DJANGO_DEBUG", "False"
-).lower() == "true"
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.environ.get(
-        "DJANGO_ALLOWED_HOSTS", ""
-    ).split(",")
+    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
     if host.strip()
 ]
 
@@ -43,13 +41,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # Framework pour les API REST
     "rest_framework",
-
     # Documentation OpenAPI / Swagger
     "drf_spectacular",
-
     # Application métier du Grand Cinéma
     "cinema",
 ]
@@ -144,9 +139,7 @@ AUTH_USER_MODEL = "cinema.Utilisateur"
 
 # Configuration Django REST Framework
 REST_FRAMEWORK = {
-    "DEFAULT_SCHEMA_CLASS": (
-        "drf_spectacular.openapi.AutoSchema"
-    ),
+    "DEFAULT_SCHEMA_CLASS": ("drf_spectacular.openapi.AutoSchema"),
 }
 
 # Configuration Swagger / OpenAPI
@@ -165,9 +158,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.environ.get(
-        "DJANGO_CSRF_TRUSTED_ORIGINS", ""
-    ).split(",")
+    for origin in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
     if origin.strip()
 ]
 
@@ -191,9 +182,7 @@ DEFAULT_FROM_EMAIL = os.environ.get(
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
 
-EMAIL_USE_TLS = (
-    os.environ.get("EMAIL_USE_TLS", "True").lower() == "true"
-)
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() == "true"
 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")

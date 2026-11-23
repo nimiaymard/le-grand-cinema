@@ -3,13 +3,12 @@ from django.contrib import admin
 
 from .models import (
     Film,
-    Salle,
     Place,
-    Seance,
     Reservation,
     ReservationPlace,
+    Salle,
+    Seance,
 )
-
 
 admin.site.register(Film)
 admin.site.register(Salle)
