@@ -43,6 +43,9 @@ class Utilisateur(AbstractUser):
 class Film(models.Model):
     titre = models.CharField(max_length=200)
 
+    est_publie = models.BooleanField(default=False)
+
+
     description = models.TextField(
         null=True,
         blank=True,

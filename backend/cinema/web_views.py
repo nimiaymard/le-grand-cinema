@@ -1,12 +1,22 @@
+
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 
-from .models import Billet, Film, Place, Reservation, ReservationPlace, Seance
+from .models import (
+    Billet,
+    Film,
+    Place,
+    Reservation,
+    ReservationPlace,
+    Seance,
+    Utilisateur,
+)
 from .notifications import (
     envoyer_confirmation_annulation,
     envoyer_confirmation_reservation,
@@ -16,16 +26,34 @@ from .services import (
     annuler_reservation,
     creer_reservation,
 )
-from .web_forms import InscriptionForm
+from .web_forms import FilmForm, InscriptionForm
 
 
 def catalogue_films(request):
     films = Film.objects.all()
+    if not (
+        request.user.is_authenticated
+        and (
+            request.user.is_superuser
+            or request.user.role == Utilisateur.Role.ADMIN
+        )
+    ):
+        films = films.filter(est_publie=True)
     return render(request, "cinema/films.html", {"films": films})
 
 
 def detail_film(request, film_id):
-    film = get_object_or_404(Film, pk=film_id)
+    films = Film.objects.all()
+    if not (
+        request.user.is_authenticated
+        and (
+            request.user.is_superuser
+            or request.user.role == Utilisateur.Role.ADMIN
+        )
+    ):
+        films = films.filter(est_publie=True)
+
+    film = get_object_or_404(films, pk=film_id)
 
     seances = (
         Seance.objects.select_related("salle")
@@ -274,4 +302,36 @@ def billet_web(request, reservation_id):
             "reservation": reservation,
             "places": places,
         },
+    )
+@login_required
+@require_http_methods(["GET", "POST"])
+def ajouter_film_web(request):
+    if not (
+        request.user.is_superuser
+        or request.user.role == Utilisateur.Role.ADMIN
+    ):
+        raise PermissionDenied("Accès réservé aux administrateurs.")
+
+    if request.method == "POST":
+        form = FilmForm(request.POST)
+
+        if form.is_valid():
+            film = form.save()
+            messages.success(
+                request,
+                f"Le film « {film.titre} » a été créé avec succès.",
+            )
+            return redirect("catalogue_films")
+
+        messages.error(
+            request,
+            "Le formulaire contient des erreurs. Veuillez les corriger.",
+        )
+    else:
+        form = FilmForm()
+
+    return render(
+        request,
+        "cinema/ajouter_film.html",
+        {"form": form},
     )
