@@ -1,10 +1,12 @@
 import uuid
-from .managers import UtilisateurManager
+
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.constraints import ExclusionConstraint
 from django.contrib.postgres.fields import DateTimeRangeField, RangeOperators
 from django.db import models
 from django.db.models import Func
+
+from .managers import UtilisateurManager
 
 
 class TstzRange(Func):

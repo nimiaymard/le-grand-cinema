@@ -1,4 +1,3 @@
-from .models import Billet, Film, Place, Reservation, ReservationPlace, Seance
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -6,19 +5,17 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .models import Film, Place, Reservation, ReservationPlace, Seance
 
+from .models import Billet, Film, Place, Reservation, ReservationPlace, Seance
+from .notifications import (
+    envoyer_confirmation_annulation,
+    envoyer_confirmation_reservation,
+)
 from .services import (
     ErreurReservation,
     annuler_reservation,
     creer_reservation,
 )
-
-from .notifications import (
-    envoyer_confirmation_annulation,
-    envoyer_confirmation_reservation,
-)
-
 from .web_forms import InscriptionForm
 
 

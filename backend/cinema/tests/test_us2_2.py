@@ -1,20 +1,22 @@
 
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 from decimal import Decimal
-
-from django.contrib.auth.models import AnonymousUser
-from django.test import TestCase
-from django.utils import timezone
-
-from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 
+from django.contrib.auth.models import AnonymousUser
 from django.db import close_old_connections
-from django.test import TransactionTestCase
+from django.test import TestCase, TransactionTestCase
+from django.utils import timezone
 
 from cinema.models import (
-    Film, Place, Reservation, ReservationPlace,
-    Salle, Seance, Utilisateur,
+    Film,
+    Place,
+    Reservation,
+    ReservationPlace,
+    Salle,
+    Seance,
+    Utilisateur,
 )
 from cinema.services import ErreurReservation, creer_reservation
 
