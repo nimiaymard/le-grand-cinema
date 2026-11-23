@@ -1,0 +1,63 @@
+
+{% extends "base.html" %}
+
+{% block title %}Mon billet - Le Grand Cinéma{% endblock %}
+
+{% block content %}
+
+<div class="seance">
+    <div>
+        <p class="eyebrow">Le Grand Cinéma</p>
+        <h1>Mon billet numérique</h1>
+
+        <p>
+            <strong>Référence :</strong>
+            {{ billet.reference }}
+        </p>
+
+        <hr>
+
+        <h2>{{ reservation.seance.film.titre }}</h2>
+
+        <p>
+            <strong>Date et heure :</strong>
+            {{ reservation.seance.date_debut|date:"d/m/Y à H:i" }}
+        </p>
+
+        <p>
+            <strong>Salle :</strong>
+            {{ reservation.seance.salle.nom }}
+        </p>
+
+        <p>
+            <strong>Places :</strong>
+            {% for rp in places %}
+                {{ rp.place.rangee }}{{ rp.place.numero }}
+                {% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+
+        <p>
+            <strong>Réservation :</strong>
+            N°{{ reservation.id }}
+        </p>
+
+        <p>
+            <strong>Statut :</strong>
+            Confirmée
+        </p>
+
+        <div class="actions">
+            <button class="btn" onclick="window.print()">
+                Imprimer mon billet
+            </button>
+
+            <a class="btn btn-outline"
+               href="{% url 'mes_reservations_web' %}">
+                Retour à mes réservations
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

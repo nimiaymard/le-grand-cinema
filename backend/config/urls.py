@@ -24,7 +24,7 @@ urlpatterns = [
     path("films/", web_views.catalogue_films, name="catalogue_films"),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path("admin/", admin.site.urls),
-
+    path( "reservations/<int:reservation_id>/billet/", web_views.billet_web, name="billet_web",),
     # API REST du cinéma
     path("api/", include("cinema.urls")),
 
