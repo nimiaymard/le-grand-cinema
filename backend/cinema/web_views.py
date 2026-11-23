@@ -1,16 +1,24 @@
+
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-
 from .models import Film, Place, Reservation, ReservationPlace, Seance
+
 from .services import (
     ErreurReservation,
     annuler_reservation,
     creer_reservation,
 )
+
+from .notifications import (
+    envoyer_confirmation_annulation,
+    envoyer_confirmation_reservation,
+)
+
 from .web_forms import InscriptionForm
 
 
@@ -67,7 +75,11 @@ def inscription(request):
     if request.method == "POST" and form.is_valid():
         user = form.save()
         login(request, user)
-        messages.success(request, "Votre compte a été créé.")
+
+        messages.success(
+            request,
+            "Votre compte a été créé.",
+        )
         return redirect("catalogue_films")
 
     return render(
@@ -87,7 +99,6 @@ def reservation_web(request, seance_id):
         salle__est_active=True,
     )
 
-    # Conserver le traitement métier existant
     if request.method == "POST":
         try:
             ids = [
@@ -99,6 +110,12 @@ def reservation_web(request, seance_id):
                 request.user,
                 seance.id,
                 ids,
+            )
+
+            # Envoyer l'email après validation de la transaction.
+            transaction.on_commit(
+                lambda reservation=reservation:
+                    envoyer_confirmation_reservation(reservation)
             )
 
             messages.success(
@@ -116,13 +133,13 @@ def reservation_web(request, seance_id):
         except ErreurReservation as exc:
             messages.error(request, str(exc))
 
-    # Récupérer toutes les places actives de la salle
+    # Places actives de la salle.
     places = Place.objects.filter(
         salle=seance.salle,
         est_active=True,
     ).order_by("rangee", "numero")
 
-    # Identifier les places actuellement occupées
+    # Places déjà réservées.
     ids_occupes = set(
         ReservationPlace.objects.filter(
             seance=seance,
@@ -130,7 +147,6 @@ def reservation_web(request, seance_id):
         ).values_list("place_id", flat=True)
     )
 
-    # Préparer les données pour le template
     plan_places = [
         {
             "id": place.id,
@@ -180,17 +196,27 @@ def mes_reservations_web(request):
     )
 
 
+
 @login_required
 @require_POST
 def annuler_reservation_web(request, reservation_id):
     try:
-        annuler_reservation(
+        reservation = annuler_reservation(
             reservation_id,
             request.user,
         )
+
+        # Envoyer l'email uniquement après une annulation réussie
+        # et après validation de la transaction.
+        transaction.on_commit(
+            lambda reservation=reservation:
+                envoyer_confirmation_annulation(reservation)
+        )
+
         messages.success(
             request,
-            "Votre réservation a été annulée.",
+            "Votre réservation a été annulée. "
+            "Un email de confirmation vous a été envoyé.",
         )
 
     except ErreurReservation as exc:
